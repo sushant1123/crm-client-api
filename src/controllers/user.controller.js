@@ -1,7 +1,8 @@
 const User = require("../models/user.model");
 
 //helper fns
-const { hashPassword, generateJwtToken } = require("../helpers/bcrypt.helper");
+const { hashPassword } = require("../helpers/bcrypt.helper");
+const { generateAccessJwtToken, generateRefreshJwtToken } = require("../helpers/jwt.helper");
 
 exports.homeRoute = (req, res, next) => {
 	// res.status(200).json({ message: "from user routes" });
@@ -28,11 +29,15 @@ exports.createUser = async (req, res) => {
 		const user = await userObj.save();
 
 		if (user) {
-			const { _id } = user;
-			const token = generateJwtToken(_id);
-			return res
-				.status(201)
-				.json({ status: "success", message: "User Created Successfully", data: { token, user } });
+			const { _id, name, company, address, phone, email } = user;
+			// const accessToken = generateAccessJwtToken({ _id, name, company, address, phone, email });
+			// const refreshToken = generateRefreshJwtToken({ _id, name, company, address, phone, email });
+
+			return res.status(201).json({
+				status: "success",
+				message: "User Created Successfully",
+				data: { user },
+			});
 		}
 	} catch (error) {
 		console.log(error);
@@ -60,6 +65,20 @@ exports.loginUser = (req, res, next) => {
 
 				//if password is correct
 				if (isPasswordCorrect) {
+					const { _id, name, company, address, phone, email } = user;
+
+					const accessToken = generateAccessJwtToken({ _id, email });
+					const refreshToken = generateRefreshJwtToken({
+						_id,
+
+						email,
+					});
+
+					return res.status(200).json({
+						status: "success",
+						message: "User loggedin successfully",
+						data: { accessToken, refreshToken, user },
+					});
 					return res.status(200).json({ status: "success", data: user });
 				} else {
 					let error = new Error("Email or password is incorrect");
