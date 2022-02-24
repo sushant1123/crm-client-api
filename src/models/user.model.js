@@ -26,6 +26,7 @@ const UserSchema = new mongoose.Schema(
 			maxlength: 50,
 			required: true,
 			unique: true,
+			lowercase: true,
 		},
 		hashed_password: {
 			type: String,

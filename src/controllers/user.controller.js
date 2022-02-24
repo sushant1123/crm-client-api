@@ -17,7 +17,7 @@ exports.createUser = async (req, res) => {
 		if (password.length < 8) {
 			let error = new Error("Password should be minimum of 8 characters long");
 			error.status = 400;
-			throw error;
+			next(error);
 		}
 
 		//hash password if in constraints
@@ -29,11 +29,55 @@ exports.createUser = async (req, res) => {
 
 		if (user) {
 			const { _id } = user;
-			const token = await generateJwtToken(_id);
-			return res.status(201).json({ message: "User Created Successfully", data: { token, user } });
+			const token = generateJwtToken(_id);
+			return res
+				.status(201)
+				.json({ status: "success", message: "User Created Successfully", data: { token, user } });
 		}
 	} catch (error) {
 		console.log(error);
-		return res.status(400).json({ status: "error", message: error.message });
+		let status = error.status || 500;
+		return res.status(status).json({ status: "error", message: error.message });
+	}
+};
+
+exports.loginUser = (req, res, next) => {
+	try {
+		const { email, password } = req.body;
+
+		//if no field or empty value return
+		if (!email || !password) {
+			return res.status(400).json({ status: "error", message: "Invalid form submission" });
+		}
+
+		//find the user with email provided
+		User.findOne({ email: email }).exec(async (error, user) => {
+			if (error) return res.status(400).json({ status: "error", message: "Invalid form submission" });
+
+			if (user) {
+				//compare the password sent in the req.
+				const isPasswordCorrect = await user.authenticate(password);
+
+				//if password is correct
+				if (isPasswordCorrect) {
+					return res.status(200).json({ status: "success", data: user });
+				} else {
+					let error = new Error("Email or password is incorrect");
+					error.status = 400;
+					next(error);
+				}
+			} else {
+				let error = new Error("User not found");
+				error.status = 400;
+				next(error);
+			}
+		});
+
+		//check the hashed password
+	} catch (error) {
+		console.log(error);
+		let status = error.status || 500;
+
+		return res.status(status).json({ status: "error", message: error.message });
 	}
 };
