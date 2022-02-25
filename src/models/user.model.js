@@ -34,6 +34,18 @@ const UserSchema = new mongoose.Schema(
 			maxlength: 100,
 			required: true,
 		},
+		refreshJWT: {
+			token: {
+				type: String,
+				maxlength: 700,
+				default: "",
+			},
+			addedAt: {
+				type: Date,
+				required: true,
+				default: Date.now(),
+			},
+		},
 	},
 	{ timestamps: true }
 );

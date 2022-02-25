@@ -75,7 +75,6 @@ exports.loginUser = (req, res, next) => {
 						message: "User loggedin successfully",
 						data: { accessToken, refreshToken, user },
 					});
-					return res.status(200).json({ status: "success", data: user });
 				} else {
 					let error = new Error("Email or password is incorrect");
 					error.status = 400;

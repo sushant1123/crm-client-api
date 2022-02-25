@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
-const { setJWT, getJWT } = require("./redis.helper");
+const { setJWT } = require("./redis.helper");
+const User = require("../models/user.model");
 
 exports.generateAccessJwtToken = async (payload) => {
 	try {
@@ -12,6 +13,27 @@ exports.generateAccessJwtToken = async (payload) => {
 	}
 };
 
-exports.generateRefreshJwtToken = (payload) => {
-	return jwt.sign(payload, process.env.JWT_REFRESH_SECRET, { expiresIn: "30d" });
+exports.generateRefreshJwtToken = async (payload) => {
+	try {
+		const { _id } = payload;
+		const refreshJwtToken = jwt.sign(payload, process.env.JWT_REFRESH_SECRET, { expiresIn: "30d" });
+
+		await storeUserRefreshJWT(_id, refreshJwtToken);
+
+		return refreshJwtToken;
+	} catch (error) {
+		console.log(error);
+	}
+};
+
+const storeUserRefreshJWT = async (_id, token) => {
+	try {
+		await User.findOneAndUpdate(
+			{ _id },
+			{ $set: { "refreshJWT.token": token, "refreshJWT.addedAt": Date.now() } },
+			{ new: true }
+		);
+	} catch (error) {
+		console.log(error);
+	}
 };
