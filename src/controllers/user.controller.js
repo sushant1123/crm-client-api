@@ -4,6 +4,7 @@ const User = require("../models/user.model");
 const { hashPassword } = require("../helpers/bcrypt.helper");
 const { generateAccessJwtToken, generateRefreshJwtToken } = require("../helpers/jwt.helper");
 const { setPasswordResetPin } = require("./resetpin.controller");
+const { emailProcessor } = require("../helpers/email.helper");
 
 exports.homeRoute = (req, res, next) => {
 	// res.status(200).json({ message: "from user routes" });
@@ -121,7 +122,20 @@ exports.resetPassword = async (req, res, next) => {
 			});
 		} else {
 			const setPin = await setPasswordResetPin(email);
-			return res.status(200).json({ setPin });
+
+			const result = await emailProcessor(email, setPin.pin);
+
+			if (result && result.messageId) {
+				return res.status(200).json({
+					status: "success",
+					message: "If email exists, password reset pin will be emailed to you",
+				});
+			}
+
+			return res.status(200).json({
+				status: "error",
+				message: "Unable to send an email. Please try again later!",
+			});
 		}
 	} catch (error) {
 		console.log(error);
