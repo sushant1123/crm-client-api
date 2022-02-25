@@ -10,6 +10,7 @@ exports.generateAccessJwtToken = async (payload) => {
 		return accessToken;
 	} catch (error) {
 		console.log(error);
+		return error;
 	}
 };
 
@@ -23,6 +24,7 @@ exports.generateRefreshJwtToken = async (payload) => {
 		return refreshJwtToken;
 	} catch (error) {
 		console.log(error);
+		return error;
 	}
 };
 
@@ -35,5 +37,16 @@ const storeUserRefreshJWT = async (_id, token) => {
 		);
 	} catch (error) {
 		console.log(error);
+		return error;
+	}
+};
+
+exports.verifyAccessJWT = (userJwt) => {
+	try {
+		const userData = jwt.verify(userJwt, process.env.JWT_ACCESS_SECRET);
+		return userData;
+	} catch (error) {
+		console.log(error);
+		return error;
 	}
 };

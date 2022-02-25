@@ -68,12 +68,15 @@ exports.loginUser = (req, res, next) => {
 					const { _id, name, company, address, phone, email } = user;
 
 					const accessToken = await generateAccessJwtToken({ _id, email });
+
 					const refreshToken = await generateRefreshJwtToken({ _id, email });
+
+					const updatedUser = await User.findOne({ email: email });
 
 					return res.status(200).json({
 						status: "success",
 						message: "User loggedin successfully",
-						data: { accessToken, refreshToken, user },
+						data: { accessToken, refreshToken, user: updatedUser },
 					});
 				} else {
 					let error = new Error("Email or password is incorrect");
@@ -93,5 +96,15 @@ exports.loginUser = (req, res, next) => {
 		let status = error.status || 500;
 
 		return res.status(status).json({ status: "error", message: error.message });
+	}
+};
+
+exports.getUser = async (req, res, next) => {
+	try {
+		const { _id } = req.user;
+		const user = await User.findById({ _id });
+		res.status(200).json({ message: "from get user", user });
+	} catch (error) {
+		next(error);
 	}
 };

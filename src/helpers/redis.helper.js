@@ -15,8 +15,13 @@ exports.setJWT = async (key, value) => {
 
 exports.getJWT = async (key) => {
 	try {
-		await client.get(key);
+		client.on("error", (err) => console.log("Redis Client Error", err));
+		await client.connect();
+		const userId = await client.get(key);
+		return userId;
 	} catch (error) {
 		console.log(error);
+	} finally {
+		await client.disconnect();
 	}
 };
