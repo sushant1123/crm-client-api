@@ -67,12 +67,8 @@ exports.loginUser = (req, res, next) => {
 				if (isPasswordCorrect) {
 					const { _id, name, company, address, phone, email } = user;
 
-					const accessToken = generateAccessJwtToken({ _id, email });
-					const refreshToken = generateRefreshJwtToken({
-						_id,
-
-						email,
-					});
+					const accessToken = await generateAccessJwtToken({ _id, email });
+					const refreshToken = await generateRefreshJwtToken({ _id, email });
 
 					return res.status(200).json({
 						status: "success",
