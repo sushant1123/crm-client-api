@@ -3,6 +3,7 @@ const User = require("../models/user.model");
 //helper fns
 const { hashPassword } = require("../helpers/bcrypt.helper");
 const { generateAccessJwtToken, generateRefreshJwtToken } = require("../helpers/jwt.helper");
+const { setPasswordResetPin } = require("./resetpin.controller");
 
 exports.homeRoute = (req, res, next) => {
 	// res.status(200).json({ message: "from user routes" });
@@ -105,6 +106,25 @@ exports.getUser = async (req, res, next) => {
 		const user = await User.findById({ _id });
 		res.status(200).json({ message: "from get user", user });
 	} catch (error) {
+		next(error);
+	}
+};
+
+exports.resetPassword = async (req, res, next) => {
+	try {
+		const { email } = req.body;
+		const user = await User.findOne({ email: email });
+		if (!user || !user._id) {
+			return res.status(400).json({
+				status: "error",
+				message: "If email exists, password reset pin will be emailed to you",
+			});
+		} else {
+			const setPin = await setPasswordResetPin(email);
+			return res.status(200).json({ setPin });
+		}
+	} catch (error) {
+		console.log(error);
 		next(error);
 	}
 };
