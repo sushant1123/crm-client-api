@@ -50,3 +50,13 @@ exports.verifyAccessJWT = (userJwt) => {
 		return error;
 	}
 };
+
+exports.verifyRefreshJWT = (userJwt) => {
+	try {
+		const userData = jwt.verify(userJwt, process.env.JWT_REFRESH_SECRET);
+		return userData;
+	} catch (error) {
+		console.log(error);
+		return error;
+	}
+};

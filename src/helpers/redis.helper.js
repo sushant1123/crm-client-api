@@ -25,3 +25,15 @@ exports.getJWT = async (key) => {
 		await client.disconnect();
 	}
 };
+
+exports.deleteJWT = async (key) => {
+	try {
+		client.on("error", (err) => console.log("Redis Client Error", err));
+		await client.connect();
+		await client.del(key);
+	} catch (error) {
+		console.log(error);
+	} finally {
+		await client.disconnect();
+	}
+};
