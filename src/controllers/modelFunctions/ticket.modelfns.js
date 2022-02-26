@@ -40,3 +40,25 @@ exports.getTicketByTicketIdModelFn = (userId, ticketId) => {
 		}
 	});
 };
+
+exports.updateTicketMessageModelFn = (ticketId, sender, message) => {
+	return new Promise((resolve, reject) => {
+		try {
+			Ticket.findOneAndUpdate(
+				{ _id: ticketId },
+				{
+					status: "Pending operators response",
+					$push: {
+						conversations: { sender: sender, message: message },
+					},
+				},
+				{ new: true }
+			)
+				.then((data) => resolve(data))
+				.catch((error) => reject(error));
+		} catch (error) {
+			console.log(error);
+			reject(error);
+		}
+	});
+};
