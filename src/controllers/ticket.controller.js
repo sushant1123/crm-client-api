@@ -1,5 +1,9 @@
 const Ticket = require("../models/ticket.model");
-const { createTicketModelFn, getAllTicketsByUserIdModelFn } = require("./modelFunctions/ticket.modelfns");
+const {
+	createTicketModelFn,
+	getAllTicketsByUserIdModelFn,
+	getTicketByTicketIdModelFn,
+} = require("./modelFunctions/ticket.modelfns");
 
 exports.createTicket = async (req, res, next) => {
 	try {
@@ -32,6 +36,7 @@ exports.createTicket = async (req, res, next) => {
 	}
 };
 
+//get all tickets by user's id
 exports.getAllTicketsByUserId = async (req, res, next) => {
 	try {
 		const { _id } = req.user;
@@ -44,6 +49,25 @@ exports.getAllTicketsByUserId = async (req, res, next) => {
 			return res
 				.status(200)
 				.json({ status: "success", message: "No tickets to show! Please create one to see" });
+		}
+	} catch (error) {
+		console.log(error);
+		next(error);
+	}
+};
+
+exports.getTicketByTicketId = async (req, res, next) => {
+	try {
+		const { _id } = req.user;
+		const { ticketId } = req.params;
+
+		const result = await getTicketByTicketIdModelFn(_id, ticketId);
+		console.log(result);
+
+		if (result && result._id) {
+			return res.status(200).json({ status: "success", result });
+		} else {
+			return res.status(200).json({ status: "success", message: "No ticket with the given id" });
 		}
 	} catch (error) {
 		console.log(error);

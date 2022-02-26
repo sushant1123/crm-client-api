@@ -1,6 +1,10 @@
 const express = require("express");
 const router = express.Router();
-const { createTicket, getAllTicketsByUserId } = require("../controllers/ticket.controller");
+const {
+	createTicket,
+	getAllTicketsByUserId,
+	getTicketByTicketId,
+} = require("../controllers/ticket.controller");
 const { isUserAuthorized } = require("../middlewares/auth.middleware");
 
 // router.all("/ticket", (req, res) => {
@@ -10,6 +14,8 @@ const { isUserAuthorized } = require("../middlewares/auth.middleware");
 router.post("/ticket", isUserAuthorized, createTicket);
 
 router.get("/ticket", isUserAuthorized, getAllTicketsByUserId);
+
+router.get("/ticket/:ticketId", isUserAuthorized, getTicketByTicketId);
 
 // router.post("/ticket", isUserAuthorized, createTicket);
 

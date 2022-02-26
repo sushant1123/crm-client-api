@@ -27,3 +27,16 @@ exports.getAllTicketsByUserIdModelFn = (userId) => {
 		}
 	});
 };
+
+exports.getTicketByTicketIdModelFn = (userId, ticketId) => {
+	return new Promise((resolve, reject) => {
+		try {
+			Ticket.findOne({ clientId: userId, _id: ticketId })
+				.then((data) => resolve(data))
+				.catch((error) => reject(error));
+		} catch (error) {
+			console.log(error);
+			reject(error);
+		}
+	});
+};
