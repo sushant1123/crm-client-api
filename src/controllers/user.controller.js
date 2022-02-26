@@ -1,9 +1,13 @@
 const User = require("../models/user.model");
 
 //helper fns
-const { hashPassword } = require("../helpers/bcrypt.helper");
+const {
+	setPasswordResetPin,
+	getPinByResetPinAndEmail,
+	deletePinAfterReset,
+} = require("./resetpin.controller");
 const { generateAccessJwtToken, generateRefreshJwtToken } = require("../helpers/jwt.helper");
-const { setPasswordResetPin } = require("./resetpin.controller");
+const { hashPassword } = require("../helpers/bcrypt.helper");
 const { emailProcessor } = require("../helpers/email.helper");
 
 exports.homeRoute = (req, res, next) => {
@@ -122,21 +126,75 @@ exports.resetPassword = async (req, res, next) => {
 			});
 		} else {
 			const setPin = await setPasswordResetPin(email);
-
-			const result = await emailProcessor(email, setPin.pin);
-
-			if (result && result.messageId) {
-				return res.status(200).json({
-					status: "success",
-					message: "If email exists, password reset pin will be emailed to you",
-				});
-			}
+			await emailProcessor({ clientEmail: email, pin: setPin.pin, type: "request-new-password" });
 
 			return res.status(200).json({
-				status: "error",
-				message: "Unable to send an email. Please try again later!",
+				status: "success",
+				message: "If email exists, password reset pin will be emailed to you",
 			});
 		}
+	} catch (error) {
+		console.log(error);
+		next(error);
+	}
+};
+
+exports.patchResetPassword = async (req, res, next) => {
+	try {
+		const { email, pin, newPassword } = req.body;
+
+		//get the pin sotored in the resetpin collection.
+		const getPin = await getPinByResetPinAndEmail(email, pin);
+
+		//if pin exists then check if it is expired or not.
+		if (getPin && getPin._id) {
+			const dbDate = getPin.addedAt;
+			const expiresIn = 1;
+
+			const expiryDate = dbDate.setDate(dbDate.getDate() + expiresIn);
+
+			const today = new Date();
+
+			//if pin not a valid pin, return response.
+			if (today > expiryDate) {
+				return res.status(400).json({ status: "error", message: "Invalid or expired Pin" });
+			}
+
+			//if pin is valid one,
+			//encrypt the pwd and save it in mongodb.
+			const hashed_password = await hashPassword(newPassword);
+
+			//save it in db.
+			const user = await User.findOneAndUpdate(
+				{ email: email },
+				{ $set: { hashed_password: hashed_password } },
+				{ new: true }
+			);
+
+			//if we have got a user then return the response that the pwd got updated
+			if (user && user._id) {
+				//send email to user first that the pwd got updated
+				await emailProcessor({ clientEmail: email, type: "password-update-success" });
+
+				//but there is a problem.
+				//if we update our pwd and leave pin in our db, user can reset it again with the same pwd.
+				//so, we need to delete that pin from the db.
+				const deletedData = await deletePinAfterReset(email, pin);
+				console.log("deleted Data::", deletedData);
+				if (deletedData._id) {
+					console.log("old pin deleted...");
+				}
+
+				return res.status(201).json({
+					status: "success",
+					message: "Password has been updated successfully",
+				});
+			}
+		}
+
+		return res
+			.status(400)
+			.json({ status: "error", message: "Unable to reset your password. Please try again later" });
 	} catch (error) {
 		console.log(error);
 		next(error);
