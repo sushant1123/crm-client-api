@@ -42,4 +42,4 @@ All the user API router follows `/v1/tokens`
 
 | #   | Routers      | Verbs | Progress | Is Private | Description            |
 | --- | ------------ | ----- | -------- | ---------- | ---------------------- |
-| 1   | `/v1/tokens` | GET   | TODO     | No         | Get a fresh access JWT |
+| 1   | `/v1/tokens` | GET   | DONE     | No         | Get a fresh access JWT |
