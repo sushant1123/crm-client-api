@@ -62,3 +62,33 @@ exports.updateTicketMessageModelFn = (ticketId, sender, message) => {
 		}
 	});
 };
+
+exports.updateTicketStatusToCloseModelFn = (clientId, ticketId) => {
+	return new Promise((resolve, reject) => {
+		try {
+			Ticket.findOneAndUpdate(
+				{ _id: ticketId, clientId: clientId },
+				{ $set: { status: "Closed" } },
+				{ new: true }
+			)
+				.then((data) => resolve(data))
+				.catch((error) => reject(error));
+		} catch (error) {
+			console.log(error);
+			reject(error);
+		}
+	});
+};
+
+exports.deleteTicketByIdModelFn = (clientId, ticketId) => {
+	return new Promise((resolve, reject) => {
+		try {
+			Ticket.findOneAndDelete({ _id: ticketId, clientId: clientId })
+				.then((data) => resolve(data))
+				.catch((error) => reject(error));
+		} catch (error) {
+			console.log(error);
+			reject(error);
+		}
+	});
+};
