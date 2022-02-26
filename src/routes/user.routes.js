@@ -14,6 +14,7 @@ const {
 	getUser,
 	resetPassword,
 	patchResetPassword,
+	logoutUser,
 } = require("../controllers/user.controller");
 
 router.all("/user", homeRoute);
@@ -27,5 +28,8 @@ router.post("/user/login", loginUser);
 router.post("/user/reset-password", resetPasswordReqValidation, resetPassword);
 
 router.patch("/user/reset-password", updatePasswordReqValidation, patchResetPassword);
+
+//user logout and invalidate jwt's.
+router.delete("/user/logout", isUserAuthorized, logoutUser);
 
 module.exports = router;

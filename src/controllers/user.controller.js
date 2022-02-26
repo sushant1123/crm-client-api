@@ -6,9 +6,14 @@ const {
 	getPinByResetPinAndEmail,
 	deletePinAfterReset,
 } = require("./resetpin.controller");
-const { generateAccessJwtToken, generateRefreshJwtToken } = require("../helpers/jwt.helper");
+const {
+	generateAccessJwtToken,
+	generateRefreshJwtToken,
+	storeUserRefreshJWT,
+} = require("../helpers/jwt.helper");
 const { hashPassword } = require("../helpers/bcrypt.helper");
 const { emailProcessor } = require("../helpers/email.helper");
+const { deleteJWT } = require("../helpers/redis.helper");
 
 exports.homeRoute = (req, res, next) => {
 	// res.status(200).json({ message: "from user routes" });
@@ -199,4 +204,26 @@ exports.patchResetPassword = async (req, res, next) => {
 		console.log(error);
 		next(error);
 	}
+};
+
+exports.logoutUser = async (req, res) => {
+	//get token from headers
+	const { authorization } = req.headers;
+	const token = authorization.split(" ")[1];
+
+	//
+	const { _id } = req.user;
+	//delete access JWT token from redis db.
+	await deleteJWT(token);
+
+	//delete refresh token from user's collection.
+	// pass empty string to update instead of deleting
+	const result = await storeUserRefreshJWT(_id, "");
+
+	if (result && result._id && result.refreshJWT.token === "") {
+		return res.status(200).json({ status: "success", message: "Logged out successfuly" });
+	}
+	return res
+		.status(500)
+		.json({ status: "error", message: "Something went wrong...!. Please try again later." });
 };

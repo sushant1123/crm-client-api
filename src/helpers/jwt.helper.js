@@ -28,13 +28,14 @@ exports.generateRefreshJwtToken = async (payload) => {
 	}
 };
 
-const storeUserRefreshJWT = async (_id, token) => {
+storeUserRefreshJWT = async (_id, token) => {
 	try {
-		await User.findOneAndUpdate(
+		const updatedUser = await User.findOneAndUpdate(
 			{ _id },
 			{ $set: { "refreshJWT.token": token, "refreshJWT.addedAt": Date.now() } },
 			{ new: true }
 		);
+		return updatedUser;
 	} catch (error) {
 		console.log(error);
 		return error;
@@ -60,3 +61,5 @@ exports.verifyRefreshJWT = (userJwt) => {
 		return error;
 	}
 };
+
+exports.storeUserRefreshJWT = storeUserRefreshJWT;

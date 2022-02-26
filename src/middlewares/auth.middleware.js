@@ -4,6 +4,9 @@ const { getJWT, deleteJWT } = require("../helpers/redis.helper");
 exports.isUserAuthorized = async (req, res, next) => {
 	try {
 		const { authorization } = req.headers;
+		if (!authorization) {
+			return res.status(403).json({ status: "error", message: "Please authenticate" });
+		}
 		const token = authorization.split(" ")[1];
 
 		//verify if jwt is valid or not.
