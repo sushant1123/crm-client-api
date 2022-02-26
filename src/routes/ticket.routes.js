@@ -8,15 +8,25 @@ const {
 	closeTicketById,
 	deleteTicketById,
 } = require("../controllers/ticket.controller");
-const { isUserAuthorized } = require("../middlewares/auth.middleware");
 
-router.post("/ticket", isUserAuthorized, createTicket);
+const { isUserAuthorized } = require("../middlewares/auth.middleware");
+const {
+	createNewTicketValidation,
+	updateTicketMessageValidation,
+} = require("../middlewares/ticketFormValidation");
+
+router.post("/ticket", isUserAuthorized, createNewTicketValidation, createTicket);
 
 router.get("/ticket", isUserAuthorized, getAllTicketsByUserId);
 
 router.get("/ticket/:ticketId", isUserAuthorized, getTicketByTicketId);
 
-router.put("/ticket/:ticketId", isUserAuthorized, updateTicketMessageByTicketId);
+router.put(
+	"/ticket/:ticketId",
+	isUserAuthorized,
+	updateTicketMessageValidation,
+	updateTicketMessageByTicketId
+);
 
 router.patch("/ticket/close-ticket/:ticketId", isUserAuthorized, closeTicketById);
 
