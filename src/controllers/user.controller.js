@@ -87,7 +87,8 @@ exports.loginUser = (req, res, next) => {
 					return res.status(200).json({
 						status: "success",
 						message: "User loggedin successfully",
-						data: { accessToken, refreshToken, user: updatedUser },
+						accessToken,
+						refreshToken,
 					});
 				} else {
 					let error = new Error("Email or password is incorrect");
@@ -113,8 +114,8 @@ exports.loginUser = (req, res, next) => {
 exports.getUser = async (req, res, next) => {
 	try {
 		const { _id } = req.user;
-		const user = await User.findById({ _id });
-		res.status(200).json({ message: "from get user", user });
+		const user = await User.findById({ _id }, { name: 1, email: 1 });
+		res.status(200).json({ status: "success", user });
 	} catch (error) {
 		next(error);
 	}
