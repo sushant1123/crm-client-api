@@ -4,9 +4,10 @@ const subject = Joi.string().min(2).max(100).required();
 const sender = Joi.string().min(2).max(50).required();
 const message = Joi.string().min(2).max(1000).required();
 const status = Joi.string().min(2).max(30).required();
+const dt = Joi.date().required();
 
 exports.createNewTicketValidation = (req, res, next) => {
-	const schema = Joi.object({ subject, sender, message });
+	const schema = Joi.object({ subject, sender, message, issueDate: dt });
 
 	const value = schema.validate(req.body);
 	if (value.error) {
