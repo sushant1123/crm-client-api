@@ -1,9 +1,10 @@
 const redis = require("redis");
 const client = redis.createClient(process.env.REDIS_URL);
 
+client.on("error", (err) => console.log("Redis Client Error", err));
+
 exports.setJWT = async (key, value) => {
 	try {
-		client.on("error", (err) => console.log("Redis Client Error", err));
 		await client.connect();
 		await client.set(key, value);
 	} catch (error) {
@@ -15,7 +16,6 @@ exports.setJWT = async (key, value) => {
 
 exports.getJWT = async (key) => {
 	try {
-		client.on("error", (err) => console.log("Redis Client Error", err));
 		await client.connect();
 		const userId = await client.get(key);
 		return userId;
@@ -28,7 +28,6 @@ exports.getJWT = async (key) => {
 
 exports.deleteJWT = async (key) => {
 	try {
-		client.on("error", (err) => console.log("Redis Client Error", err));
 		await client.connect();
 		await client.del(key);
 	} catch (error) {

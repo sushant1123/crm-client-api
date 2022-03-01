@@ -7,10 +7,11 @@ exports.generateAccessJwtToken = async (payload) => {
 		const { _id, email } = payload;
 		const accessToken = jwt.sign(payload, process.env.JWT_ACCESS_SECRET, { expiresIn: "15m" });
 		await setJWT(accessToken, _id);
-		return accessToken;
+		// return accessToken;
+		return Promise.resolve(accessToken);
 	} catch (error) {
 		console.log(error);
-		return error;
+		return Promise.reject(error);
 	}
 };
 
@@ -21,10 +22,11 @@ exports.generateRefreshJwtToken = async (payload) => {
 
 		await storeUserRefreshJWT(_id, refreshJwtToken);
 
-		return refreshJwtToken;
+		// return refreshJwtToken;
+		return Promise.resolve(refreshJwtToken);
 	} catch (error) {
 		console.log(error);
-		return error;
+		return Promise.reject(error);
 	}
 };
 
@@ -35,30 +37,33 @@ storeUserRefreshJWT = async (_id, token) => {
 			{ $set: { "refreshJWT.token": token, "refreshJWT.addedAt": Date.now() } },
 			{ new: true }
 		);
-		return updatedUser;
+		// return updatedUser;
+		return Promise.resolve(updatedUser);
 	} catch (error) {
 		console.log(error);
-		return error;
+		return Promise.reject(error);
 	}
 };
 
 exports.verifyAccessJWT = (userJwt) => {
 	try {
 		const userData = jwt.verify(userJwt, process.env.JWT_ACCESS_SECRET);
-		return userData;
+		// return userData;
+		return Promise.resolve(userData);
 	} catch (error) {
 		console.log(error);
-		return error;
+		return Promise.reject(error);
 	}
 };
 
 exports.verifyRefreshJWT = (userJwt) => {
 	try {
 		const userData = jwt.verify(userJwt, process.env.JWT_REFRESH_SECRET);
-		return userData;
+		// return userData;
+		return Promise.resolve(userData);
 	} catch (error) {
 		console.log(error);
-		return error;
+		return Promise.reject(error);
 	}
 };
 

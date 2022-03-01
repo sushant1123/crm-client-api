@@ -6,7 +6,6 @@ exports.getRefreshToken = async (req, res, next) => {
 		const { authorization } = req.headers;
 		const token = authorization.split(" ")[1];
 		const decoded = await verifyRefreshJWT(token);
-		// console.log(decoded);
 
 		if (decoded.email) {
 			const userProfile = await User.findOne({ email: decoded.email });
