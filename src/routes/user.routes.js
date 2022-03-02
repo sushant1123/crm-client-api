@@ -16,6 +16,7 @@ const {
 	resetPassword,
 	patchResetPassword,
 	logoutUser,
+	verifyUser,
 } = require("../controllers/user.controller");
 
 router.all("/user", homeRoute);
@@ -23,6 +24,9 @@ router.all("/user", homeRoute);
 router.get("/user", isUserAuthorized, getUser);
 
 router.post("/user/create", createNewUserReqValidation, createUser);
+
+//route to verify user
+router.patch("/user/verify", verifyUser);
 
 router.post("/user/login", loginUser);
 

@@ -1,6 +1,6 @@
 const User = require("../models/user.model");
 
-const frontEndUrl = "http://localhost:3000/registration";
+const frontEndUrl = "http://localhost:3000";
 
 //helper fns
 const {
@@ -17,6 +17,8 @@ const {
 const { hashPassword } = require("../helpers/bcrypt.helper");
 const { emailProcessor } = require("../helpers/email.helper");
 const { deleteJWT } = require("../helpers/redis.helper");
+
+const { verifyUserModelFn } = require("./modelFunctions/user.modelfns");
 
 exports.homeRoute = (req, res, next) => {
 	// res.status(200).json({ message: "from user routes" });
@@ -48,7 +50,7 @@ exports.createUser = async (req, res) => {
 			await emailProcessor({
 				clientEmail: email,
 				type: "new-user-confirmation-required",
-				verificationLink: `${frontEndUrl}/verification/${_id}`,
+				verificationLink: `${frontEndUrl}/user-verification/${_id}/${email}`,
 			});
 
 			return res.status(201).json({
@@ -82,6 +84,15 @@ exports.loginUser = (req, res, next) => {
 			if (error) return res.status(400).json({ status: "error", message: "Invalid form submission" });
 
 			if (user) {
+				// check if the user is verified or not.
+				if (!user.isVerified) {
+					return res.status(400).json({
+						status: "error",
+						message:
+							"You account has not been verified. Please check your email and verify you account before able to login!",
+					});
+				}
+
 				//compare the password sent in the req.
 				const isPasswordCorrect = await user.authenticate(password);
 
@@ -238,4 +249,30 @@ exports.logoutUser = async (req, res) => {
 	return res
 		.status(500)
 		.json({ status: "error", message: "Something went wrong...!. Please try again later." });
+};
+
+exports.verifyUser = async (req, res, next) => {
+	try {
+		// console.log(req.body);
+		const { _id, email } = req.body;
+		const result = await verifyUserModelFn(_id, email);
+
+		if (result && result._id) {
+			return res.status(200).json({
+				status: "success",
+				message: "Your account has been activated. You may sign-in now.",
+			});
+		}
+		return res.status(400).json({
+			status: "error",
+			message: "Invalid request",
+		});
+	} catch (error) {
+		// console.log(error);
+		// next(error);
+		return res.status(400).json({
+			status: "error",
+			message: "Invalid request",
+		});
+	}
 };

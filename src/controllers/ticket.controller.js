@@ -46,13 +46,7 @@ exports.getAllTicketsByUserId = async (req, res, next) => {
 		const result = await getAllTicketsByUserIdModelFn(_id);
 		// console.log(result);
 
-		if (result && result.length) {
-			return res.status(200).json({ status: "success", result });
-		} else {
-			return res
-				.status(200)
-				.json({ status: "success", message: "No tickets to show! Please create one to see" });
-		}
+		return res.status(200).json({ status: "success", result });
 	} catch (error) {
 		console.log(error);
 		next(error);
@@ -65,7 +59,7 @@ exports.getTicketByTicketId = async (req, res, next) => {
 		const { ticketId } = req.params;
 
 		const result = await getTicketByTicketIdModelFn(_id, ticketId);
-		console.log(result);
+		// console.log(result);
 
 		if (result && result._id) {
 			return res.status(200).json({ status: "success", result });
