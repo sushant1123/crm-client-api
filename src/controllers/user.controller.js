@@ -1,5 +1,7 @@
 const User = require("../models/user.model");
 
+const frontEndUrl = "http://localhost:3000/registration";
+
 //helper fns
 const {
 	setPasswordResetPin,
@@ -42,8 +44,12 @@ exports.createUser = async (req, res) => {
 
 		if (user) {
 			const { _id, name, company, address, phone, email } = user;
-			// const accessToken = generateAccessJwtToken({ _id, name, company, address, phone, email });
-			// const refreshToken = generateRefreshJwtToken({ _id, name, company, address, phone, email });
+
+			await emailProcessor({
+				clientEmail: email,
+				type: "new-user-confirmation-required",
+				verificationLink: `${frontEndUrl}/verification/${_id}`,
+			});
 
 			return res.status(201).json({
 				status: "success",

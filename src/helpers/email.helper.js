@@ -28,7 +28,7 @@ const send = async (mailInfo) => {
 	});
 };
 
-exports.emailProcessor = async ({ clientEmail, pin, type }) => {
+exports.emailProcessor = async ({ clientEmail, pin, type, verificationLink = "" }) => {
 	let info = {};
 	switch (type) {
 		case "request-new-password":
@@ -48,6 +48,16 @@ exports.emailProcessor = async ({ clientEmail, pin, type }) => {
 				subject: "Password Updated - CRM Ticket System", // Subject line
 				text: `Password has been updated successfully.`, // plain text body
 				html: `<b>Password has been updated successfully.</b>`, // html body
+			};
+			break;
+
+		case "new-user-confirmation-required":
+			info = {
+				from: '"CRM Ticket System" <jared.sporer30@ethereal.email>', // sender address
+				to: clientEmail, // list of receivers
+				subject: "New User Verifiction - CRM Ticket System", // Subject line
+				text: `Hello, Please follow below link to verify your account before your login. Verification Link: ${verificationLink}`, // plain text body
+				html: `Hello, <br/> <p>Please follow below link to verify your account before your login.</p> <br /> <p><a href=${verificationLink}>${verificationLink}</a></p>`, // html body
 			};
 			break;
 
