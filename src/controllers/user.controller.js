@@ -86,7 +86,7 @@ exports.loginUser = (req, res, next) => {
 			if (user) {
 				// check if the user is verified or not.
 				if (!user.isVerified) {
-					return res.status(400).json({
+					return res.json({
 						status: "error",
 						message:
 							"You account has not been verified. Please check your email and verify you account before able to login!",
@@ -263,14 +263,14 @@ exports.verifyUser = async (req, res, next) => {
 				message: "Your account has been activated. You may sign-in now.",
 			});
 		}
-		return res.status(400).json({
+		return res.json({
 			status: "error",
 			message: "Invalid request",
 		});
 	} catch (error) {
 		// console.log(error);
 		// next(error);
-		return res.status(400).json({
+		return res.json({
 			status: "error",
 			message: "Invalid request",
 		});
