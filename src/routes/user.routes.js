@@ -5,6 +5,7 @@ const { isUserAuthorized } = require("../middlewares/auth.middleware");
 const {
 	resetPasswordReqValidation,
 	updatePasswordReqValidation,
+	createNewUserReqValidation,
 } = require("../middlewares/formValidation.middleware");
 
 const {
@@ -21,7 +22,7 @@ router.all("/user", homeRoute);
 
 router.get("/user", isUserAuthorized, getUser);
 
-router.post("/user/create", createUser);
+router.post("/user/create", createNewUserReqValidation, createUser);
 
 router.post("/user/login", loginUser);
 

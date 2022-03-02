@@ -99,7 +99,7 @@ exports.updateTicketMessageByTicketId = async (req, res, next) => {
 		}
 
 		const result = await updateTicketMessageModelFn(ticketId, sender, message);
-		console.log(result);
+		// console.log(result);
 
 		if (result && result._id) {
 			return res.status(200).json({ status: "success", message: "Ticket updated successfully" });

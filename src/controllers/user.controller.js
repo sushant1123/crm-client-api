@@ -6,6 +6,7 @@ const {
 	getPinByResetPinAndEmail,
 	deletePinAfterReset,
 } = require("./resetpin.controller");
+
 const {
 	generateAccessJwtToken,
 	generateRefreshJwtToken,
@@ -53,7 +54,11 @@ exports.createUser = async (req, res) => {
 	} catch (error) {
 		console.log(error);
 		let status = error.status || 500;
-		return res.status(status).json({ status: "error", message: error.message });
+		let message = "Unable to create new user at the moment. Please try again";
+		if (error.message.includes("E11000 duplicate key error")) {
+			message = "User already registered with the email";
+		}
+		return res.status(status).json({ status: "error", message });
 	}
 };
 
