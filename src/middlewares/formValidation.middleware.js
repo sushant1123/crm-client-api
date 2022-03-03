@@ -19,7 +19,7 @@ exports.createNewUserReqValidation = (req, res, next) => {
 	const value = schema.validate(req.body);
 
 	if (value.error) {
-		return res.status(400).json({
+		return res.json({
 			status: "error",
 			message: value.error.message,
 		});
@@ -33,7 +33,8 @@ exports.resetPasswordReqValidation = (req, res, next) => {
 	const value = schema.validate(req.body);
 
 	if (value.error) {
-		return res.status(400).json({
+		// console.log("error in validation");
+		return res.json({
 			status: "error",
 			message: value.error.message,
 		});
@@ -46,7 +47,7 @@ exports.updatePasswordReqValidation = (req, res, next) => {
 	const value = schema.validate(req.body);
 
 	if (value.error) {
-		return res.status(400).json({
+		return res.json({
 			status: "error",
 			message: value.error.message,
 		});

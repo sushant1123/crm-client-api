@@ -148,8 +148,8 @@ exports.resetPassword = async (req, res, next) => {
 		const { email } = req.body;
 		const user = await User.findOne({ email: email });
 		if (!user || !user._id) {
-			return res.status(400).json({
-				status: "error",
+			return res.json({
+				status: "success",
 				message: "If email exists, password reset pin will be emailed to you",
 			});
 		} else {
@@ -185,7 +185,7 @@ exports.patchResetPassword = async (req, res, next) => {
 
 			//if pin not a valid pin, return response.
 			if (today > expiryDate) {
-				return res.status(400).json({ status: "error", message: "Invalid or expired Pin" });
+				return res.json({ status: "error", message: "Invalid or expired Pin" });
 			}
 
 			//if pin is valid one,
@@ -220,9 +220,10 @@ exports.patchResetPassword = async (req, res, next) => {
 			}
 		}
 
-		return res
-			.status(400)
-			.json({ status: "error", message: "Unable to reset your password. Please try again later" });
+		return res.json({
+			status: "error",
+			message: "Unable to reset your password. Please try again later",
+		});
 	} catch (error) {
 		console.log(error);
 		next(error);
